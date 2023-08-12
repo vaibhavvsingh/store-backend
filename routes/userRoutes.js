@@ -3,7 +3,7 @@ const jwt = require("jsonwebtoken");
 const router = express.Router();
 const db = require("../db");
 
-function getUser(req, res) {
+function loginUser(req, res) {
   const { username, password } = req.body;
   db.query(
     "select * from `users` where `username`=?",
@@ -13,14 +13,16 @@ function getUser(req, res) {
         console.log(err);
         return res.json({ message: "SQL Error " + err.message });
       }
-      if (!results?.length) {
+      if (!results.length) {
         return res.json({ message: "User Not Found" });
       }
-      if (!results[0].password === password) {
+      if (results[0].password !== password) {
         return res.json({ message: "Wrong Password" });
       }
       const token = jwt.sign({ id: results[0].id }, process.env.JWT_KEY);
-      res.cookie("access_token", token, { httpOnly: true }).json(results[0]);
+      res
+        .cookie("access_token", token, { httpOnly: true })
+        .json({ userid: results[0].id, message: "User Logged In" });
     }
   );
 }
@@ -34,8 +36,7 @@ function addUser(req, res) {
         console.log(err);
         return res.json({ message: "SQL Error " + err.message });
       }
-      console.log(results);
-      res.json(results);
+      res.json({ message: "User created successfully! Please Login Now." });
     }
   );
 }
@@ -93,13 +94,9 @@ function logoutUser(req, res) {
     .json({ message: "User has been logged out" });
 }
 
-router
-  .route("/")
-  .get(getUser)
-  .post(addUser)
-  .patch(updateUser)
-  .delete(deleteUser);
+router.route("/").post(addUser).patch(updateUser).delete(deleteUser);
 
 router.route("/logout").get(logoutUser);
+router.route("/login").post(loginUser);
 
 module.exports = router;

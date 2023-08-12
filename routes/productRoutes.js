@@ -5,10 +5,10 @@ const adminKey = process.env.ADMIN_KEY;
 
 function getProducts(req, res) {
   let queryString;
-  if (!req.body) {
+  if (!req.query.id) {
     queryString = "select * from products";
   } else {
-    queryString = "select * from products where id=" + req.body.id;
+    queryString = "select * from products where id=" + req.query.id;
   }
   db.query(queryString, function (err, results, fields) {
     if (err) {
@@ -17,6 +17,7 @@ function getProducts(req, res) {
     if (results.length == 0) {
       return res.json({ message: "No Product Found" });
     }
+    // console.log(results);
     res.json(results);
   });
 }

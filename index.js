@@ -9,7 +9,13 @@ const app = express();
 const db = require("./db");
 const cookieParser = require("cookie-parser");
 
-app.use(cors());
+app.use(
+  cors({
+    origin: ["http://localhost:3000", "https://kicks-shoe-store.vercel.app"],
+    credentials: true,
+    optionsSuccessStatus: 200,
+  })
+);
 app.use(express.json());
 app.use(cookieParser());
 
@@ -19,7 +25,7 @@ db.connect((err) => {
 });
 
 app.use("/user", userRouter);
-app.use("/products", productRouter);
+app.use("/product", productRouter);
 app.use("/cart", cartRouter);
 
 app.get("/", (req, res) => {
