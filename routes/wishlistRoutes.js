@@ -4,10 +4,10 @@ const router = express.Router();
 const db = require("../db");
 const authenticate = require("../middlewares/authenticate");
 
-function getCartItems(req, res) {
+function getWishlistItems(req, res) {
   const { userid } = req.query;
   db.query(
-    "select c.id, `productid`, `userid`, `quantity`, `name`, brand, `desc`, sizes, img, price, category from store.cart c inner join store.products p on c.productid = p.id where c.userid=?",
+    "select idwishlist, `productid`, `userid`, `name`, brand, `desc`, sizes, img, price, category from store.wishlist w inner join store.products p on w.productid = p.id where w.userid=?",
     [userid],
     function (err, results, fields) {
       if (err) {
@@ -17,10 +17,11 @@ function getCartItems(req, res) {
     }
   );
 }
-function addCartItem(req, res) {
-  const { userid, productid, quantity } = req.body;
+
+function addWishlistItem(req, res) {
+  const { userid, productid } = req.body;
   db.query(
-    "select * from cart where userid=? and productid=?",
+    "select * from wishlist where userid=? and productid=?",
     [userid, productid],
     function (err, results1, fields) {
       if (err) {
@@ -28,41 +29,32 @@ function addCartItem(req, res) {
       }
       if (results1.length === 0) {
         db.query(
-          "insert into cart (userid, productid, quantity) values (?,?,?)",
-          [userid, productid, quantity],
+          "insert into wishlist (userid, productid) values (?,?)",
+          [userid, productid],
           function (err, results, fields) {
             if (err) {
               return res.json({ message: "SQL Error" });
             }
-            res.json({ message: "Added Item to Cart" });
+            res.json({ message: "Added Item to Wishlist" });
           }
         );
       } else {
-        db.query(
-          "update cart set quantity=? where id=?",
-          [quantity, results1[0].id],
-          function (err, results, fields) {
-            if (err) {
-              return res.json({ message: "SQL Error" });
-            }
-            res.json({ message: "Cart Updated" });
-          }
-        );
+        res.status(400).json({ message: "Product already exists in Wishlist" });
       }
     }
   );
 }
 
-function deleteCartItem(req, res) {
+function deleteWishlistItem(req, res) {
   const { id } = req.body;
   db.query(
-    "delete from cart where id=?",
+    "delete from wishlist where idwishlist=?",
     [id],
     function (err, results, fields) {
       if (err) {
         return res.json({ message: "SQL Error" });
       }
-      res.json({ message: "Deleted Cart Item" });
+      res.json({ message: "Deleted Wishlist Item" });
     }
   );
 }
@@ -70,8 +62,8 @@ function deleteCartItem(req, res) {
 router
   .use(authenticate)
   .route("/")
-  .get(getCartItems)
-  .post(addCartItem)
-  .delete(deleteCartItem);
+  .get(getWishlistItems)
+  .post(addWishlistItem)
+  .delete(deleteWishlistItem);
 
 module.exports = router;
