@@ -1,10 +1,9 @@
-const express = require("express");
-const jwt = require("jsonwebtoken");
+import express, { Request, Response } from 'express'
+import db from '../db'
+import authenticate from "../middlewares/authenticate";
 const router = express.Router();
-const db = require("../db");
-const authenticate = require("../middlewares/authenticate");
 
-function getWishlistItems(req, res) {
+function getWishlistItems(req:Request, res:Response) {
   const { userid } = req.query;
   db.query(
     "select idwishlist, `productid`, `userid`, `name`, brand, `desc`, sizes, img, price, category from store.wishlist w inner join store.products p on w.productid = p.id where w.userid=?",
@@ -18,7 +17,7 @@ function getWishlistItems(req, res) {
   );
 }
 
-function addWishlistItem(req, res) {
+function addWishlistItem(req:Request, res:Response) {
   const { userid, productid } = req.body;
   db.query(
     "select * from wishlist where userid=? and productid=?",
@@ -45,7 +44,7 @@ function addWishlistItem(req, res) {
   );
 }
 
-function deleteWishlistItem(req, res) {
+function deleteWishlistItem(req:Request, res:Response) {
   const { id } = req.body;
   db.query(
     "delete from wishlist where idwishlist=?",
@@ -66,4 +65,4 @@ router
   .post(addWishlistItem)
   .delete(deleteWishlistItem);
 
-module.exports = router;
+export default router;

@@ -1,23 +1,22 @@
-const express = require("express");
-const jwt = require("jsonwebtoken");
+import express, { Request, Response } from "express";
+import db from "../db";
+import authenticate from "../middlewares/authenticate";
 const router = express.Router();
-const db = require("../db");
-const authenticate = require("../middlewares/authenticate");
 
-function getCartItems(req, res) {
+function getCartItems(req:Request, res:Response) {
   const { userid } = req.query;
   db.query(
     "select c.id, `productid`, `userid`, `quantity`, `name`, brand, `desc`, sizes, img, price, category from store.cart c inner join store.products p on c.productid = p.id where c.userid=?",
     [userid],
     function (err, results, fields) {
       if (err) {
-        return res.json({ message: "SQL Error" });
+        return res.status(500).json({ message: "SQL Error" });
       }
       res.json(results);
     }
   );
 }
-function addCartItem(req, res) {
+function addCartItem(req:Request, res:Response) {
   const { userid, productid, quantity } = req.body;
   db.query(
     "select * from cart where userid=? and productid=?",
@@ -53,7 +52,7 @@ function addCartItem(req, res) {
   );
 }
 
-function deleteCartItem(req, res) {
+function deleteCartItem(req:Request, res:Response) {
   const { id } = req.body;
   db.query(
     "delete from cart where id=?",
@@ -67,7 +66,7 @@ function deleteCartItem(req, res) {
   );
 }
 
-function deleteAllItems(req, res) {
+function deleteAllItems(req:Request, res:Response) {
   const { userid } = req.body;
   db.query(
     "delete from cart where userid = ?",
@@ -90,4 +89,4 @@ router
 
 router.use(authenticate).route("/all").delete(deleteAllItems);
 
-module.exports = router;
+export default router;

@@ -1,9 +1,9 @@
-const express = require("express");
+import express, { Request, Response } from 'express'
+import db from '../db'
 const router = express.Router();
-const db = require("../db");
 const adminKey = process.env.ADMIN_KEY;
 
-function getProducts(req, res) {
+function getProducts(req:Request, res:Response) {
   const { id, page, search } = req.query;
   let queryString = "select * from products";
   if (id) {
@@ -11,9 +11,9 @@ function getProducts(req, res) {
   } else if (page) {
     if (search && search !== "")
       queryString = queryString + ` where \`name\` like '%${search}%'`;
-    if (page < 1)
+    if (parseInt(page as string) < 1)
       return res.status(400).json({ message: "Invalid Page Number" });
-    queryString = queryString + ` limit 12 offset ${12 * (page - 1)}`;
+    queryString = queryString + ` limit 12 offset ${12 * (parseInt(page as string )- 1)}`;
   }
   db.query(queryString, function (err, results, fields) {
     if (err) return res.json({ message: err.message });
@@ -24,7 +24,7 @@ function getProducts(req, res) {
   });
 }
 
-function addProduct(req, res) {
+function addProduct(req:Request, res:Response) {
   const { name, brand, desc, price, sizes, img, adminToken } = req.body;
   if (adminToken !== adminKey) return res.json({ message: "Not Authorized" });
   db.query(
@@ -39,7 +39,7 @@ function addProduct(req, res) {
   );
 }
 
-function updateProduct(req, res) {
+function updateProduct(req:Request, res:Response) {
   const { id, name, brand, desc, price, sizes, img, adminToken } = req.body;
   if (adminToken !== adminKey) return res.json({ message: "Not Authorized" });
   db.query(
@@ -54,7 +54,7 @@ function updateProduct(req, res) {
   );
 }
 
-function deleteProduct(req, res) {
+function deleteProduct(req:Request, res:Response) {
   const { id, adminToken } = req.body;
   if (adminToken !== adminKey) return res.json({ message: "Not Authorized" });
   db.query(
@@ -76,4 +76,4 @@ router
   .patch(updateProduct)
   .delete(deleteProduct);
 
-module.exports = router;
+export default router;

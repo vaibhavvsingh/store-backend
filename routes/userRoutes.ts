@@ -1,11 +1,12 @@
-const express = require("express");
-const jwt = require("jsonwebtoken");
+import express, { Request, Response } from 'express'
+import jwt from "jsonwebtoken"
+import db from '../db'
+import bcrypt from 'bcrypt'
+import authenticate from "../middlewares/authenticate";
 const router = express.Router();
-const db = require("../db");
-const bcrypt = require("bcrypt");
-const authenticate = require("../middlewares/authenticate");
+const JWT_KEY = process.env.JWT_KEY;
 
-function loginUser(req, res) {
+function loginUser(req:Request, res:Response) {
   const { username, password } = req.body;
   db.query(
     "select * from `users` where `username`=?",
@@ -24,7 +25,7 @@ function loginUser(req, res) {
         if (!result) {
           return res.status(401).json({ message: "Wrong Password" });
         }
-        const token = jwt.sign({ id: results[0].id }, process.env.JWT_KEY, {
+        const token = jwt.sign({ id: results[0].id }, JWT_KEY as string, {
           expiresIn: "7d",
         });
         res
@@ -38,7 +39,7 @@ function loginUser(req, res) {
     }
   );
 }
-function addUser(req, res) {
+function addUser(req:Request, res:Response) {
   const { username, password, email, firstName, lastName } = req.body;
   if (password.length < 8) {
     res
@@ -69,7 +70,7 @@ function addUser(req, res) {
   });
 }
 
-function updateUser(req, res) {
+function updateUser(req:Request, res:Response) {
   const { userid, username, password, email, firstName, lastName } = req.body;
   db.query(
     "update users set `username`=?, `password`=?, `email`=?, `first-name`=?, `last-name`=? where id=?",
@@ -83,7 +84,7 @@ function updateUser(req, res) {
   );
 }
 
-function deleteUser(req, res) {
+function deleteUser(req:Request, res:Response) {
   const { userid } = req.body;
   db.query(
     "DELETE FROM users WHERE id=?;",
@@ -97,7 +98,7 @@ function deleteUser(req, res) {
   );
 }
 
-function logoutUser(req, res) {
+function logoutUser(req:Request, res:Response) {
   res
     .clearCookie("acces_token", {
       sameSite: "none",
@@ -117,4 +118,4 @@ router
   .patch(authenticate, updateUser)
   .delete(authenticate, deleteUser);
 
-module.exports = router;
+export default router;

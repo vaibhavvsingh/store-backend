@@ -1,14 +1,15 @@
-require("dotenv").config();
-const express = require("express");
-const Razorpay = require("razorpay");
-const cors = require("cors");
-const cookieParser = require("cookie-parser");
-const userRouter = require("./routes/userRoutes");
-const productRouter = require("./routes/productRoutes");
-const cartRouter = require("./routes/cartRoutes");
-const wishlistRouter = require("./routes/wishlistRoutes");
-const db = require("./db");
-const authenticate = require("./middlewares/authenticate");
+import "dotenv/config";
+import express from "express";
+import Razorpay from 'razorpay'
+import cors from 'cors'
+import cookieParser from 'cookie-parser';
+import productRouter from "./routes/productRoutes";
+import userRouter from "./routes/userRoutes";
+import cartRouter from "./routes/cartRoutes";
+import wishlistRouter from "./routes/wishlistRoutes";
+import db from './db'
+import authenticate from "./middlewares/authenticate";
+
 const PORT = process.env.PORT || 3000;
 const app = express();
 
@@ -42,7 +43,7 @@ app.post("/products", (req, res) => {
   const { data } = req.body;
   const sizes = "[7,8,9,10,11,12,13]";
   const desc = "Hello World";
-  data.forEach((element) => {
+  data.forEach((element:any) => {
     const { name, brand, price, img } = element;
     db.query(
       "insert into products (`name`, brand, `desc`, price, sizes, img) values (?,?,?,?,?,?)",
