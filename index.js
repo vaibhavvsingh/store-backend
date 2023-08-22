@@ -1,14 +1,21 @@
 require("dotenv").config();
 const express = require("express");
+const Razorpay = require("razorpay");
 const cors = require("cors");
+const cookieParser = require("cookie-parser");
 const userRouter = require("./routes/userRoutes");
 const productRouter = require("./routes/productRoutes");
 const cartRouter = require("./routes/cartRoutes");
 const wishlistRouter = require("./routes/wishlistRoutes");
+const db = require("./db");
+const authenticate = require("./middlewares/authenticate");
 const PORT = process.env.PORT || 3000;
 const app = express();
-const db = require("./db");
-const cookieParser = require("cookie-parser");
+
+const razorpay = new Razorpay({
+  key_id: "rzp_test_cQBOooxXHP2UNA",
+  key_secret: "9hygpd65u4kYOvANu2YSAbf9",
+});
 
 app.use(
   "*",
@@ -48,6 +55,24 @@ app.post("/products", (req, res) => {
     );
   });
   res.json({ message: "data added" });
+});
+
+app.post("/razorpay", authenticate, async (req, res) => {
+  try {
+    const response = await razorpay.orders.create({
+      amount: 500 * 100,
+      currency: "INR",
+      receipt: Date.now().toString(),
+      partial_payment: true,
+    });
+    res.json({
+      id: response.id,
+      currency: response.currency,
+      amount: response.amount,
+    });
+  } catch (err) {
+    console.log(err);
+  }
 });
 
 app.get("/", (req, res) => {

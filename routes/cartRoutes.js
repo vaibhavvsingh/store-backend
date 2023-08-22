@@ -60,9 +60,23 @@ function deleteCartItem(req, res) {
     [id],
     function (err, results, fields) {
       if (err) {
-        return res.json({ message: "SQL Error" });
+        return res.status(500).json({ message: "SQL Error" });
       }
       res.json({ message: "Deleted Cart Item" });
+    }
+  );
+}
+
+function deleteAllItems(req, res) {
+  const { userid } = req.body;
+  db.query(
+    "delete from cart where userid = ?",
+    [userid],
+    function (err, results, fields) {
+      if (err) {
+        return res.status(500).json({ message: "SQL Error" });
+      }
+      res.json({ message: "Emptied Cart" });
     }
   );
 }
@@ -73,5 +87,7 @@ router
   .get(getCartItems)
   .post(addCartItem)
   .delete(deleteCartItem);
+
+router.use(authenticate).route("/all").delete(deleteAllItems);
 
 module.exports = router;
