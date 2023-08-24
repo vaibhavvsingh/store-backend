@@ -14,8 +14,8 @@ const PORT = process.env.PORT || 3000;
 const app = express();
 
 const razorpay = new Razorpay({
-  key_id: "rzp_test_cQBOooxXHP2UNA",
-  key_secret: "9hygpd65u4kYOvANu2YSAbf9",
+  key_id: process.env.RAZORPAY_ID as string,
+  key_secret: process.env.RAZORPAY_SECRET as string,
 });
 
 app.use(
@@ -77,7 +77,7 @@ app.post("/razorpay", authenticate, async (req, res) => {
 });
 
 app.get("/", (req, res) => {
-  res.sendFile(__dirname + "/index.html");
+  res.send("Hey there! Welcome to the backend of shoe store");
 });
 
 app.listen(PORT, () => console.log("Server running on port " + PORT));
