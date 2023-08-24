@@ -8,7 +8,7 @@ Find API routes and Documentation [here](https://www.hjsfdjjksdf.in/)
 - MySQL for database
 - JWT for user authentication
 - B crypt for password encryption
-- AWS Elastic BeanStalk for deployment
+- AWS App Runner for deployment
 - AWS RDS for database deployment
 
 ## Features
